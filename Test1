@@ -1,0 +1,568 @@
+package UDPT;
+import java.util.*;
+import java.io.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JComboBox;
+
+public class DatabaseManager {
+	private static final String FILE_PATH = "C:\\Users\\Maheen\\OneDrive\\Desktop\\OOP_CEP\\Details.txt";
+    private static ArrayList<ArrayList<String>> details = new ArrayList<>();
+	private static final String[][] PROVIDER_DATA = {
+			{"Jazz", "0300", "0301", "0302", "0303", "0304", "0305", "0306", "0307", "0320",
+				"0321", "0322", "0323", "0324", "0325"}, 
+			{"Telenor", "0340", "0341", "0342", "0343", "0344", "0345", "0346", "0347"},
+			{"Zong", "0310", "0311", "0312", "0313", "0314", "0315", "0316", "0317", "0318", "0319"},
+			{"Ufone", "0330", "0331", "0332", "0333", "0334", "0335", "0336", "0337"}
+	};
+	
+	private static final String[][] PROVIDER_PACKAGES = {
+		    {"Jazz", "Daily Social", "Weekly Internet", "Monthly Pro"},
+		    {"Telenor", "Daily YouTube", "Weekly Zoom", "Monthly Supreme"},
+		    {"Zong", "Daily WhatsApp", "Weekly Bundle", "Monthly Mega"},
+		    {"Ufone", "Daily Unlimited", "Weekly Student", "Monthly Max"}
+		};
+	
+	private static boolean exit = false;;
+	
+	// Function to load data from the text file into the ArrayList
+	public static void loadData() {
+        details.clear(); // Clear the existing data in the list
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] row = line.split(",");
+                // Ensure the row has exactly 16 columns, fill missing ones with "N/A"
+                ArrayList<String> rowData = new ArrayList<>(Arrays.asList(row));
+                while (rowData.size() < 16) {
+                    rowData.add("N/A");
+                }
+                details.add(rowData);
+            }
+            System.out.println("Data loaded successfully.");
+        } catch (IOException e) {
+            System.err.println("Error loading data: " + e.getMessage());
+        }
+    }
+	
+	 // Function to save the current ArrayList back to the text file
+    public static void saveData() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))) {
+            for (ArrayList<String> row : details) {
+                // Join the row into a comma-separated string and write to file
+                bw.write(String.join(",", row));
+                bw.newLine();
+            }
+            System.out.println("Data saved successfully.");
+        } catch (IOException e) {
+            System.err.println("Error saving data: " + e.getMessage());
+        }
+    }
+
+
+	//Main Menu with GUI
+	private static void mainMenu() {
+		JFrame mainMenuFrame = new JFrame("Main Menu");
+		mainMenuFrame.setSize(350, 400);
+		mainMenuFrame.setLocationRelativeTo(null);
+		mainMenuFrame.setDefaultCloseOperation(mainMenuFrame.EXIT_ON_CLOSE);
+		mainMenuFrame.setLayout(new GridLayout(8, 1));
+		
+		String[] options = {"Add User", "Change User Name", "Change Phone Number", "Update Package Subscription", "Remove a User",
+				"View All Information", "Generate Statistics", "EXIT"};
+		
+		for (String option : options) {
+			JButton button = new JButton(option);
+			mainMenuFrame.add(button);
+			
+			// add action listener to handle button clicks
+			button.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (option.equals("EXIT")) {
+						exit = true; // Breaks loop
+						mainMenuFrame.dispose(); // Closes the main frame
+					}
+					else {
+						//userChoice = option; // Record the button clicked
+						mainMenuFrame.dispose(); // Close the main frame
+						openNewWindow(userChoice); // Open new window based on user choice
+					}
+				}
+			});
+		}
+		mainMenuFrame.setVisible(true);
+		
+		// Block until frame is closed
+		while(mainMenuFrame.isShowing()) {
+			try {
+				Thread.sleep(100); // Small delay to avoid busy waiting
+			} catch(InterruptedException ex) {
+				Thread.currentThread().interrupt();
+			}
+		}
+	}
+	
+	// New Window after Main Menu Choice
+	private static void openNewWindow(String choice) {
+		switch(choice) {
+		case "Add User":
+			addUser();
+			break;
+		case "Change User Name":
+			changeUserName();
+			break;
+		case "Change Phone Number":
+			changePhoneNumber();
+			break;
+		case "Update Package Subscription":
+			updatePackage();
+			break;
+		case "Remove a User":
+			removeUser();
+			break;
+		case "View All Information":
+			viewAllInfo();
+			break;
+		case "Generate Statistics":
+			generateStatistics();
+			break;
+		}
+	}
+	
+	private static void addUser() {
+		JFrame newUserNum = new JFrame("Add User");
+        newUserNum.setDefaultCloseOperation(newUserNum.EXIT_ON_CLOSE);
+        newUserNum.setSize(400, 300);
+        newUserNum.setLayout(new GridLayout(6, 1));
+
+        JLabel instruction = new JLabel("Select the number of phone numbers to input:");
+        newUserNum.add(instruction);
+
+        for (int i = 1; i <= 5; i++) {
+            JButton button = new JButton(String.valueOf(i));
+            newUserNum.add(button);
+
+            // Action listener for button
+            button.addActionListener(e -> {
+                int count = Integer.parseInt(button.getText());
+                newUserNum.dispose();
+                userInputFrame(count);
+            });
+        }
+        newUserNum.setVisible(true);
+    }
+	
+	
+    public static void userInputFrame(int count) {
+        JFrame frame = new JFrame("Add User");
+        frame.setDefaultCloseOperation(frame.DISPOSE_ON_CLOSE);
+        frame.setSize(600, 200 + count * 100);
+        frame.setLayout(new GridLayout(count * 4 + 2, 2));
+
+        JLabel nameLabel = new JLabel("Name:");
+        JTextField nameField = new JTextField();
+        frame.add(nameLabel);
+        frame.add(nameField);
+
+        JTextField[] phoneFields = new JTextField[count];
+        JLabel[] providerLabels = new JLabel[count];
+        JComboBox<String>[] packageDropdowns = new JComboBox[count];
+
+        for (int i = 0; i < count; i++) {
+            JLabel phoneLabel = new JLabel("Phone Number " + (i + 1) + ":");
+            JTextField phoneField = new JTextField();
+            JLabel providerLabel = new JLabel("Provider:");
+            providerLabel.setText("N/A");
+
+            frame.add(phoneLabel);
+            frame.add(phoneField);
+            frame.add(providerLabel);
+
+            phoneFields[i] = phoneField;
+            providerLabels[i] = providerLabel;
+
+            phoneField.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    String phoneNumber = phoneField.getText();
+                    if (phoneNumber.length() == 11) {
+                        boolean valid = false;
+                        for (String[] provider : PROVIDER_DATA) {
+                            String providerName = provider[0];
+                            for (int j = 1; j < provider.length; j++) {
+                                if (phoneNumber.startsWith(provider[j])) {
+                                    providerLabel.setText(providerName);
+                                    valid = true;
+
+                                    // Set the packages dropdown
+                                    for (String[] packageData : PROVIDER_PACKAGES) {
+                                        if (packageData[0].equals(providerName)) {
+                                            String[] packages = Arrays.copyOfRange(packageData, 1, packageData.length);
+                                            packageDropdowns[i] = new JComboBox<>(packages);
+                                            frame.add(new JLabel("Package " + (i + 1) + ":"));
+                                            frame.add(packageDropdowns[i]);
+                                            frame.revalidate();
+                                            frame.repaint();
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                            if (valid) {
+                                break;
+                            }
+                        }
+                        if (!valid) {
+                            JOptionPane.showMessageDialog(frame, "Invalid phone number. Please try again.");
+                            phoneField.setText("");
+                            providerLabel.setText("N/A");
+                        }
+                    }
+                }
+            });
+        }
+
+        JButton submitButton = new JButton("Submit");
+        frame.add(new JLabel());
+        frame.add(submitButton);
+
+        submitButton.addActionListener(e -> {
+            String name = nameField.getText().trim();
+            if (name.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Name cannot be empty.");
+                return;
+            }
+
+            ArrayList<String> rowData = new ArrayList<>(Arrays.asList(new String[16]));
+            rowData.set(0, name);
+
+            boolean allValid = true;
+            int currentIndex = 1; // Start from column 1
+            for (int i = 0; i < count; i++) {
+                String phoneNumber = phoneFields[i].getText().trim();
+                if (phoneNumber.length() != 11) {
+                    JOptionPane.showMessageDialog(frame, "Phone number " + (i + 1) + " must be 11 digits.");
+                    allValid = false;
+                    break;
+                }
+
+                String provider = providerLabels[i].getText();
+                if (provider.equals("N/A")) {
+                    JOptionPane.showMessageDialog(frame, "Invalid provider for phone number " + (i + 1));
+                    allValid = false;
+                    break;
+                }
+
+                String dataPackage = packageDropdowns[i] != null ? (String) packageDropdowns[i].getSelectedItem() : "None";
+
+                // Fill in the ArrayList
+                rowData.set(currentIndex, phoneNumber);
+                rowData.set(currentIndex + 1, provider);
+                rowData.set(currentIndex + 2, dataPackage);
+
+                // Increment index by 3 (phone, provider, package)
+                currentIndex += 3;
+            }
+
+            if (allValid) {
+                // Fill remaining columns with "N/A"
+                for (int i = currentIndex; i < 16; i++) {
+                    rowData.set(i, "N/A");
+                }
+
+                details.add(rowData);
+                saveData();
+                JOptionPane.showMessageDialog(frame, "User added successfully!");
+                frame.dispose();
+            }
+        });
+
+        frame.setVisible(true);
+    }
+
+    private static int searchNumber(String phoneNumber) {
+        for (int i = 0; i < details.size(); i++) {
+            for (int j = 1; j < details.get(i).size(); j += 3) {
+                if (details.get(i).get(j).equals(phoneNumber)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    public static void changeUserName() {
+        String phoneNumber = JOptionPane.showInputDialog("Enter phone number to search:");
+        int index = searchNumber(phoneNumber);
+
+        if (index == -1) {
+            JOptionPane.showMessageDialog(null, "Phone number not found. Please try again.");
+            return;
+        }
+
+        JFrame frame = new JFrame("Change User Name");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(400, 200);
+
+        JLabel nameLabel = new JLabel("New Name:");
+        JTextField nameField = new JTextField(details.get(index).get(0));
+
+        JButton submitButton = new JButton("Submit");
+        submitButton.addActionListener(e -> {
+            String newName = nameField.getText().trim();
+            if (!newName.isEmpty()) {
+                details.get(index).set(0, newName);
+                saveData();
+                JOptionPane.showMessageDialog(frame, "Name updated successfully!");
+                frame.dispose();
+            } else {
+                JOptionPane.showMessageDialog(frame, "Name cannot be empty.");
+            }
+        });
+
+        frame.setLayout(new GridLayout(2, 2));
+        frame.add(nameLabel);
+        frame.add(nameField);
+        frame.add(new JLabel());
+        frame.add(submitButton);
+        frame.setVisible(true);
+    }
+
+    public static void changePhoneNumber() {
+        String phoneNumber = JOptionPane.showInputDialog("Enter phone number to search:");
+        int index = searchNumber(phoneNumber);
+
+        if (index == -1) {
+            JOptionPane.showMessageDialog(null, "Phone number not found. Please try again.");
+            return;
+        }
+
+        JFrame frame = new JFrame("Change Phone Number");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(400, 300);
+
+        JLabel phoneLabel = new JLabel("New Phone Number:");
+        JTextField phoneField = new JTextField();
+        JLabel providerLabel = new JLabel("Provider: N/A");
+        JComboBox<String> packageDropdown = new JComboBox<>();
+
+        phoneField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String newPhone = phoneField.getText();
+                if (newPhone.length() == 11) {
+                    boolean valid = false;
+                    for (String[] provider : PROVIDER_DATA) {
+                        if (Arrays.asList(provider).contains(newPhone.substring(0, 4))) {
+                            providerLabel.setText("Provider: " + provider[0]);
+                            packageDropdown.removeAllItems();
+                            for (String[] pack : PROVIDER_PACKAGES) {
+                                if (pack[0].equals(provider[0])) {
+                                    for (int i = 1; i < pack.length; i++) {
+                                        packageDropdown.addItem(pack[i]);
+                                    }
+                                    break;
+                                }
+                            }
+                            valid = true;
+                            break;
+                        }
+                    }
+                    if (!valid) {
+                        JOptionPane.showMessageDialog(frame, "Invalid phone number.");
+                        phoneField.setText("");
+                        providerLabel.setText("Provider: N/A");
+                        packageDropdown.removeAllItems();
+                    }
+                }
+            }
+        });
+
+        JButton submitButton = new JButton("Submit");
+        submitButton.addActionListener(e -> {
+            String newPhone = phoneField.getText().trim();
+            String provider = providerLabel.getText().replace("Provider: ", "").trim();
+            if (!newPhone.isEmpty() && !provider.equals("N/A")) {
+                details.get(index).set(1, newPhone);
+                details.get(index).set(2, provider);
+                details.get(index).set(3, (String) packageDropdown.getSelectedItem());
+                saveData();
+                JOptionPane.showMessageDialog(frame, "Phone number updated successfully!");
+                frame.dispose();
+            } else {
+                JOptionPane.showMessageDialog(frame, "Please complete all fields.");
+            }
+        });
+
+        frame.setLayout(new GridLayout(4, 2));
+        frame.add(phoneLabel);
+        frame.add(phoneField);
+        frame.add(providerLabel);
+        frame.add(packageDropdown);
+        frame.add(new JLabel());
+        frame.add(submitButton);
+        frame.setVisible(true);
+    }
+
+    public static void updatePackage() {
+        String phoneNumber = JOptionPane.showInputDialog("Enter phone number to search:");
+        int index = searchNumber(phoneNumber);
+
+        if (index == -1) {
+            JOptionPane.showMessageDialog(null, "Phone number not found. Please try again.");
+            return;
+        }
+
+        JFrame frame = new JFrame("Update Package");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(400, 200);
+
+        JLabel packageLabel = new JLabel("Select New Package:");
+        JComboBox<String> packageDropdown = new JComboBox<>();
+        String currentProvider = details.get(index).get(2);
+
+        for (String[] provider : PROVIDER_PACKAGES) {
+            if (provider[0].equals(currentProvider)) {
+                for (int i = 1; i < provider.length; i++) {
+                    packageDropdown.addItem(provider[i]);
+                }
+                break;
+            }
+        }
+
+        JButton submitButton = new JButton("Submit");
+        submitButton.addActionListener(e -> {
+            String newPackage = (String) packageDropdown.getSelectedItem();
+            details.get(index).set(3, newPackage);
+            saveData();
+            JOptionPane.showMessageDialog(frame, "Package updated successfully!");
+            frame.dispose();
+        });
+
+        frame.setLayout(new GridLayout(2, 2));
+        frame.add(packageLabel);
+        frame.add(packageDropdown);
+        frame.add(new JLabel());
+        frame.add(submitButton);
+        frame.setVisible(true);
+    }
+    
+    public static void removeUser() {
+        JFrame frame = new JFrame("Remove User");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(400, 200);
+
+        JPanel panel = new JPanel();
+        frame.add(panel);
+
+        panel.setLayout(new GridLayout(3, 1));
+
+        JLabel label = new JLabel("Enter Phone Number to Remove:");
+        JTextField phoneNumberField = new JTextField();
+        JButton submitButton = new JButton("Remove User");
+
+        panel.add(label);
+        panel.add(phoneNumberField);
+        panel.add(submitButton);
+
+        submitButton.addActionListener(e -> {
+            String phoneNumber = phoneNumberField.getText().trim();
+
+            if (phoneNumber.length() != 11) {
+                JOptionPane.showMessageDialog(frame, "Phone number must be 11 digits.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            for (int i = 0; i < details.size(); i++) {
+                if (details.get(i).contains(phoneNumber)) {
+                    details.remove(i);
+                    saveData();
+                    JOptionPane.showMessageDialog(frame, "User removed successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    frame.dispose();
+                    return;
+                }
+            }
+
+            JOptionPane.showMessageDialog(frame, "Phone number not found.", "Error", JOptionPane.ERROR_MESSAGE);
+        });
+
+        frame.setVisible(true);
+    }
+
+    public static void viewAllInfo() {
+        JFrame frame = new JFrame("View All Users");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(800, 400);
+
+        String[] columns = {"Name", "Phone 1", "Provider 1", "Package 1", "Phone 2", "Provider 2", "Package 2", "Phone 3", "Provider 3", "Package 3", "Phone 4", "Provider 4", "Package 4"};
+        DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
+
+        for (ArrayList<String> detail : details) {
+            tableModel.addRow(detail.toArray(new String[0]));
+        }
+
+        JTable table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        frame.add(scrollPane);
+
+        frame.setVisible(true);
+    }
+
+    public static void generateStatistics() {
+        HashMap<String, Integer> providerCount = new HashMap<>();
+        HashMap<String, Integer> packageCount = new HashMap<>();
+        int totalPhoneNumbers = 0;
+
+        for (ArrayList<String> detail : details) {
+            for (int i = 1; i < detail.size(); i += 3) {
+                String provider = detail.get(i + 1);
+                String pkg = detail.get(i + 2);
+
+                if (!provider.equals("N/A")) {
+                    providerCount.put(provider, providerCount.getOrDefault(provider, 0) + 1);
+                    totalPhoneNumbers++;
+                }
+
+                if (!pkg.equals("N/A")) {
+                    packageCount.put(pkg, packageCount.getOrDefault(pkg, 0) + 1);
+                }
+            }
+        }
+
+        JFrame frame = new JFrame("Statistics");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(400, 300);
+        frame.setLayout(new BorderLayout());
+
+        JTextArea textArea = new JTextArea();
+        textArea.append("Total Phone Numbers: " + totalPhoneNumbers + "\n\n");
+
+        textArea.append("Provider Distribution:\n");
+        for (Map.Entry<String, Integer> entry : providerCount.entrySet()) {
+            textArea.append(entry.getKey() + ": " + entry.getValue() + "\n");
+        }
+
+        textArea.append("\nPackage Distribution:\n");
+        for (Map.Entry<String, Integer> entry : packageCount.entrySet()) {
+            textArea.append(entry.getKey() + ": " + entry.getValue() + "\n");
+        }
+
+        textArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        frame.add(scrollPane, BorderLayout.CENTER);
+
+        frame.setVisible(true);
+    }
+
+
+    public static void main(String[] args) {
+        loadData();
+    	mainMenu();
+    }
+}
+
+
