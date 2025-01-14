@@ -1,4 +1,7 @@
-package UDPT;
+// Maheen Farrukh Khan
+// FA23-BECE-0001
+// Object Oriented Programming CEP Project
+
 import java.util.*;
 import java.io.*;
 import javax.swing.*;
@@ -8,27 +11,27 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.JComboBox;
 
 public class DatabaseManager {
-	private static final String FILE_PATH = "C:\\Users\\Maheen\\OneDrive\\Desktop\\OOP_CEP\\Details.txt";
+    private static final String FILE_PATH = "C:\\Users\\Maheen\\OneDrive\\Desktop\\OOP_CEP\\Details.txt";
     private static ArrayList<ArrayList<String>> details = new ArrayList<>();
-	private static final String[][] PROVIDER_DATA = {
-			{"Jazz", "0300", "0301", "0302", "0303", "0304", "0305", "0306", "0307", "0320",
-				"0321", "0322", "0323", "0324", "0325"}, 
-			{"Telenor", "0340", "0341", "0342", "0343", "0344", "0345", "0346", "0347"},
-			{"Zong", "0310", "0311", "0312", "0313", "0314", "0315", "0316", "0317", "0318", "0319"},
-			{"Ufone", "0330", "0331", "0332", "0333", "0334", "0335", "0336", "0337"}
-	};
-	
-	private static final String[][] PROVIDER_PACKAGES = {
-		    {"Jazz", "Daily Social", "Weekly Internet", "Monthly Pro"},
-		    {"Telenor", "Daily YouTube", "Weekly Zoom", "Monthly Supreme"},
-		    {"Zong", "Daily WhatsApp", "Weekly Bundle", "Monthly Mega"},
-		    {"Ufone", "Daily Unlimited", "Weekly Student", "Monthly Max"}
-		};
-	
-	private static boolean exit = false;;
-	
-	// Function to load data from the text file into the ArrayList
-	public static void loadData() {
+    private static final String[][] PROVIDER_DATA = {
+            {"Jazz", "0300", "0301", "0302", "0303", "0304", "0305", "0306", "0307", "0320",
+                    "0321", "0322", "0323", "0324", "0325"},
+            {"Telenor", "0340", "0341", "0342", "0343", "0344", "0345", "0346", "0347"},
+            {"Zong", "0310", "0311", "0312", "0313", "0314", "0315", "0316", "0317", "0318", "0319"},
+            {"Ufone", "0330", "0331", "0332", "0333", "0334", "0335", "0336", "0337"}
+    };
+
+    private static final String[][] PROVIDER_PACKAGES = {
+            {"Jazz", "Daily Social", "Weekly Internet", "Monthly Pro"},
+            {"Telenor", "Daily YouTube", "Weekly Zoom", "Monthly Supreme"},
+            {"Zong", "Daily WhatsApp", "Weekly Bundle", "Monthly Mega"},
+            {"Ufone", "Daily Unlimited", "Weekly Student", "Monthly Max"}
+    };
+
+    private static boolean exit = false;
+
+    // Function to load data from the text file into the ArrayList
+    public static void loadData() {
         details.clear(); // Clear the existing data in the list
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
@@ -46,8 +49,8 @@ public class DatabaseManager {
             System.err.println("Error loading data: " + e.getMessage());
         }
     }
-	
-	 // Function to save the current ArrayList back to the text file
+
+    // Function to save the current ArrayList back to the text file
     public static void saveData() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))) {
             for (ArrayList<String> row : details) {
@@ -62,78 +65,75 @@ public class DatabaseManager {
     }
 
 
-	//Main Menu with GUI
-	private static void mainMenu() {
-		JFrame mainMenuFrame = new JFrame("Main Menu");
-		mainMenuFrame.setSize(350, 400);
-		mainMenuFrame.setLocationRelativeTo(null);
-		mainMenuFrame.setDefaultCloseOperation(mainMenuFrame.EXIT_ON_CLOSE);
-		mainMenuFrame.setLayout(new GridLayout(8, 1));
-		
-		String[] options = {"Add User", "Change User Name", "Change Phone Number", "Update Package Subscription", "Remove a User",
-				"View All Information", "Generate Statistics", "EXIT"};
-		
-		for (String option : options) {
-			JButton button = new JButton(option);
-			mainMenuFrame.add(button);
-			
-			// add action listener to handle button clicks
-			button.addActionListener(new ActionListener(){
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (option.equals("EXIT")) {
-						exit = true; // Breaks loop
-						mainMenuFrame.dispose(); // Closes the main frame
-					}
-					else {
-						//userChoice = option; // Record the button clicked
-						mainMenuFrame.dispose(); // Close the main frame
-						openNewWindow(userChoice); // Open new window based on user choice
-					}
-				}
-			});
-		}
-		mainMenuFrame.setVisible(true);
-		
-		// Block until frame is closed
-		while(mainMenuFrame.isShowing()) {
-			try {
-				Thread.sleep(100); // Small delay to avoid busy waiting
-			} catch(InterruptedException ex) {
-				Thread.currentThread().interrupt();
-			}
-		}
-	}
-	
-	// New Window after Main Menu Choice
-	private static void openNewWindow(String choice) {
-		switch(choice) {
-		case "Add User":
-			addUser();
-			break;
-		case "Change User Name":
-			changeUserName();
-			break;
-		case "Change Phone Number":
-			changePhoneNumber();
-			break;
-		case "Update Package Subscription":
-			updatePackage();
-			break;
-		case "Remove a User":
-			removeUser();
-			break;
-		case "View All Information":
-			viewAllInfo();
-			break;
-		case "Generate Statistics":
-			generateStatistics();
-			break;
-		}
-	}
-	
-	private static void addUser() {
-		JFrame newUserNum = new JFrame("Add User");
+    //Main Menu with GUI
+    private static void mainMenu() {
+        JFrame mainMenuFrame = new JFrame("Main Menu");
+        mainMenuFrame.setSize(350, 400);
+        mainMenuFrame.setLocationRelativeTo(null);
+        mainMenuFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        mainMenuFrame.setLayout(new GridLayout(8, 1));
+
+        String[] options = {"Add User", "Change User Name", "Change Phone Number", "Update Package Subscription", "Remove a User",
+                "View All Information", "Generate Statistics", "EXIT"};
+
+        for (String option : options) {
+            JButton button = new JButton(option);
+            mainMenuFrame.add(button);
+
+            // add action listener to handle button clicks
+            button.addActionListener(e -> {
+                if (option.equals("EXIT")) {
+                    exit = true; // Breaks loop
+                    mainMenuFrame.dispose(); // Closes the main frame
+                }
+                else {
+                    // Record the button clicked
+                    mainMenuFrame.dispose(); // Close the main frame
+                    openNewWindow(option); // Open new window based on user choice
+                }
+            });
+        }
+        mainMenuFrame.setVisible(true);
+
+        // Block until frame is closed
+        while(mainMenuFrame.isShowing()) {
+            try {
+                Thread.sleep(100); // Small delay to avoid busy waiting
+            } catch(InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    // New Window after Main Menu Choice
+    private static void openNewWindow(String choice) {
+        switch(choice) {
+            case "Add User":
+                addUser();
+                break;
+            case "Change User Name":
+                changeUserName();
+                break;
+            case "Change Phone Number":
+                changePhoneNumber();
+                break;
+            case "Update Package Subscription":
+                updatePackage();
+                break;
+            case "Remove a User":
+                removeUser();
+                break;
+            case "View All Information":
+                viewAllInfo();
+                break;
+            case "Generate Statistics":
+                generateStatistics();
+                break;
+        }
+    }
+
+    private static void addUser() {
+        JFrame newUserNum = new JFrame("Add User");
         newUserNum.setDefaultCloseOperation(newUserNum.EXIT_ON_CLOSE);
         newUserNum.setSize(400, 300);
         newUserNum.setLayout(new GridLayout(6, 1));
@@ -154,11 +154,11 @@ public class DatabaseManager {
         }
         newUserNum.setVisible(true);
     }
-	
-	
+
+
     public static void userInputFrame(int count) {
         JFrame frame = new JFrame("Add User");
-        frame.setDefaultCloseOperation(frame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.setSize(600, 200 + count * 100);
         frame.setLayout(new GridLayout(count * 4 + 2, 2));
 
@@ -169,7 +169,7 @@ public class DatabaseManager {
 
         JTextField[] phoneFields = new JTextField[count];
         JLabel[] providerLabels = new JLabel[count];
-        JComboBox<String>[] packageDropdowns = new JComboBox[count];
+        JComboBox[] packageDropdowns = new JComboBox[count];
 
         for (int i = 0; i < count; i++) {
             JLabel phoneLabel = new JLabel("Phone Number " + (i + 1) + ":");
@@ -198,12 +198,14 @@ public class DatabaseManager {
                                     valid = true;
 
                                     // Set the packages dropdown
-                                    for (String[] packageData : PROVIDER_PACKAGES) {
+                                    for (int i = 0; i < PROVIDER_PACKAGES.length; i++) {
+                                        String[] packageData = PROVIDER_PACKAGES[i];
                                         if (packageData[0].equals(providerName)) {
                                             String[] packages = Arrays.copyOfRange(packageData, 1, packageData.length);
-                                            packageDropdowns[i] = new JComboBox<>(packages);
-                                            frame.add(new JLabel("Package " + (i + 1) + ":"));
-                                            frame.add(packageDropdowns[i]);
+                                            final int index = i; // Create a final or effectively final copy of i
+                                            packageDropdowns[index] = new JComboBox<>(packages);
+                                            frame.add(new JLabel("Package " + (index + 1) + ":"));
+                                            frame.add(packageDropdowns[index]);
                                             frame.revalidate();
                                             frame.repaint();
                                             break;
@@ -450,7 +452,7 @@ public class DatabaseManager {
         frame.add(submitButton);
         frame.setVisible(true);
     }
-    
+
     public static void removeUser() {
         JFrame frame = new JFrame("Remove User");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -561,7 +563,9 @@ public class DatabaseManager {
 
     public static void main(String[] args) {
         loadData();
-    	mainMenu();
+        mainMenu();
+
+	System.out.println("Maheen Farrukh\nFA23-BECE-0001");
     }
 }
 
