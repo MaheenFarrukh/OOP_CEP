@@ -198,18 +198,18 @@ public class DatabaseManager {
                                     valid = true;
 
                                     // Set the packages dropdown
-                                    	int index = 0; // Index to track dropdowns added
-					for (String[] packageData : PROVIDER_PACKAGES) {
-					    if (packageData[0].equals(providerName)) {
-						String[] packages = Arrays.copyOfRange(packageData, 1, packageData.length);
-						packageDropdowns[index] = new JComboBox<>(packages);
-						frame.add(new JLabel("Package " + (index + 1) + ":"));
-						frame.add(packageDropdowns[index]);
-						index++; // Increment the dropdown index
-					    }
-					}
-					frame.revalidate();
-					frame.repaint();
+                                    int index = 0; // Index to track dropdowns added
+                                    for (String[] packageData : PROVIDER_PACKAGES) {
+                                        if (packageData[0].equals(providerName)) {
+                                            String[] packages = Arrays.copyOfRange(packageData, 1, packageData.length);
+                                            packageDropdowns[index] = new JComboBox<>(packages);
+                                            frame.add(new JLabel("Package " + (index + 1) + ":"));
+                                            frame.add(packageDropdowns[index]);
+                                            index++; // Increment the dropdown index
+                                        }
+                                    }
+                                    frame.revalidate();
+                                    frame.repaint();
 
                                     break;
                                 }
@@ -500,7 +500,7 @@ public class DatabaseManager {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(800, 400);
 
-        String[] columns = {"Name", "Phone 1", "Provider 1", "Package 1", "Phone 2", "Provider 2", "Package 2", "Phone 3", "Provider 3", "Package 3", "Phone 4", "Provider 4", "Package 4"};
+        String[] columns = {"Name", "Phone 1", "Provider 1", "Package 1", "Phone 2", "Provider 2", "Package 2", "Phone 3", "Provider 3", "Package 3", "Phone 4", "Provider 4", "Package 4", "Phone 5", "Provider 5", "Package 5"};
         DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
 
         for (ArrayList<String> detail : details) {
@@ -565,7 +565,7 @@ public class DatabaseManager {
         loadData();
         mainMenu();
 
-	System.out.println("Maheen Farrukh\nFA23-BECE-0001");
+        System.out.println("Maheen Farrukh\nFA23-BECE-0001");
     }
 }
 
