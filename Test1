@@ -198,19 +198,19 @@ public class DatabaseManager {
                                     valid = true;
 
                                     // Set the packages dropdown
-                                    for (int i = 0; i < PROVIDER_PACKAGES.length; i++) {
-                                        String[] packageData = PROVIDER_PACKAGES[i];
-                                        if (packageData[0].equals(providerName)) {
-                                            String[] packages = Arrays.copyOfRange(packageData, 1, packageData.length);
-                                            final int index = i; // Create a final or effectively final copy of i
-                                            packageDropdowns[index] = new JComboBox<>(packages);
-                                            frame.add(new JLabel("Package " + (index + 1) + ":"));
-                                            frame.add(packageDropdowns[index]);
-                                            frame.revalidate();
-                                            frame.repaint();
-                                            break;
-                                        }
-                                    }
+                                    	int index = 0; // Index to track dropdowns added
+					for (String[] packageData : PROVIDER_PACKAGES) {
+					    if (packageData[0].equals(providerName)) {
+						String[] packages = Arrays.copyOfRange(packageData, 1, packageData.length);
+						packageDropdowns[index] = new JComboBox<>(packages);
+						frame.add(new JLabel("Package " + (index + 1) + ":"));
+						frame.add(packageDropdowns[index]);
+						index++; // Increment the dropdown index
+					    }
+					}
+					frame.revalidate();
+					frame.repaint();
+
                                     break;
                                 }
                             }
